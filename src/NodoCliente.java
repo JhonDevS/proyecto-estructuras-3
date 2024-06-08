@@ -23,10 +23,6 @@ public class NodoCliente {
         return id.equals(that.id);
     }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
 
     @Override
     public String toString() {

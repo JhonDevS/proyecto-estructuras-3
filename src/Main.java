@@ -1,9 +1,14 @@
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Set;
 
-public class Main {
-    public static void main(String[] args) {
-        Biblioteca biblioteca = new Biblioteca();
+public class Main extends JFrame {
+    private Biblioteca biblioteca;
+
+    public Main() {
+        biblioteca = new Biblioteca();
 
         // Libros por defecto
         NodoLibro libro1 = new NodoLibro("123456789", "El Quijote", "Miguel de Cervantes");
@@ -19,100 +24,152 @@ public class Main {
         biblioteca.crearCliente(cliente1);
         biblioteca.crearCliente(cliente2);
 
-        // Menú
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("Menú:");
-            System.out.println("1. Ingresar un libro");
-            System.out.println("2. Ingresar un usuario");
-            System.out.println("3. Hacer un préstamo");
-            System.out.println("4. Hacer una devolución");
-            System.out.println("5. Ver los libros prestados por un cliente");
-            System.out.println("6. Salir");
-            System.out.print("Elige una opción: ");
-            int opcion = scanner.nextInt();
-            scanner.nextLine();
+        // Configuración de la ventana principal
+        setTitle("Biblioteca");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-            switch (opcion) {
-                case 1:
-                    System.out.print("Ingrese ISBN del libro: ");
-                    String isbn = scanner.nextLine();
-                    System.out.print("Ingrese título del libro: ");
-                    String titulo = scanner.nextLine();
-                    System.out.print("Ingrese autor del libro: ");
-                    String autor = scanner.nextLine();
-                    NodoLibro nuevoLibro = new NodoLibro(isbn, titulo, autor);
-                    biblioteca.insertarLibro(nuevoLibro);
-                    System.out.println("Libro ingresado correctamente.");
-                    break;
+        // Crear panel principal
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(6, 1));
 
-                case 2:
-                    System.out.print("Ingrese ID del usuario: ");
-                    String idCliente = scanner.nextLine();
-                    System.out.print("Ingrese nombre del usuario: ");
-                    String nombre = scanner.nextLine();
-                    NodoCliente nuevoCliente = new NodoCliente(idCliente, nombre);
-                    biblioteca.crearCliente(nuevoCliente);
-                    System.out.println("Usuario ingresado correctamente.");
-                    break;
+        // Crear botones para el menú
+        JButton btnIngresarLibro = new JButton("Ingresar un libro");
+        JButton btnIngresarUsuario = new JButton("Ingresar un usuario");
+        JButton btnHacerPrestamo = new JButton("Hacer un préstamo");
+        JButton btnHacerDevolucion = new JButton("Hacer una devolución");
+        JButton btnVerLibrosPrestados = new JButton("Ver los libros prestados por un cliente");
+        JButton btnSalir = new JButton("Salir");
 
-                case 3:
-                    System.out.print("Ingrese ID del usuario: ");
-                    String idClientePrestamo = scanner.nextLine();
-                    System.out.print("Ingrese ISBN del libro: ");
-                    String isbnPrestamo = scanner.nextLine();
-                    NodoCliente clientePrestamo = biblioteca.buscarClientePorId(idClientePrestamo);
-                    NodoLibro libroPrestamo = biblioteca.buscarLibroPorIsbn(isbnPrestamo);
-                    if (clientePrestamo != null && libroPrestamo != null) {
-                        biblioteca.prestarLibro(clientePrestamo, libroPrestamo);
-                        System.out.println("Préstamo realizado correctamente.");
-                    } else {
-                        System.out.println("Cliente o libro no encontrado.");
-                    }
-                    break;
+        // Añadir acción a los botones
+        btnIngresarLibro.addActionListener(e -> ingresarLibro());
+        btnIngresarUsuario.addActionListener(e -> ingresarUsuario());
+        btnHacerPrestamo.addActionListener(e -> hacerPrestamo());
+        btnHacerDevolucion.addActionListener(e -> hacerDevolucion());
+        btnVerLibrosPrestados.addActionListener(e -> verLibrosPrestados());
+        btnSalir.addActionListener(e -> System.exit(0));
 
-                case 4:
-                    System.out.print("Ingrese ID del usuario: ");
-                    String idClienteDevolucion = scanner.nextLine();
-                    System.out.print("Ingrese ISBN del libro: ");
-                    String isbnDevolucion = scanner.nextLine();
-                    NodoCliente clienteDevolucion = biblioteca.buscarClientePorId(idClienteDevolucion);
-                    NodoLibro libroDevolucion = biblioteca.buscarLibroPorIsbn(isbnDevolucion);
-                    if (clienteDevolucion != null && libroDevolucion != null) {
-                        biblioteca.devolverLibro(clienteDevolucion, libroDevolucion);
-                        System.out.println("Devolución realizada correctamente.");
-                    } else {
-                        System.out.println("Cliente o libro no encontrado.");
-                    }
-                    break;
+        // Añadir botones al panel
+        panel.add(btnIngresarLibro);
+        panel.add(btnIngresarUsuario);
+        panel.add(btnHacerPrestamo);
+        panel.add(btnHacerDevolucion);
+        panel.add(btnVerLibrosPrestados);
+        panel.add(btnSalir);
 
-                case 5:
-                    System.out.print("Ingrese ID del usuario: ");
-                    String idClienteConsulta = scanner.nextLine();
-                    NodoCliente clienteConsulta = biblioteca.buscarClientePorId(idClienteConsulta);
-                    if (clienteConsulta != null) {
-                        Set<NodoLibro> librosPrestados = biblioteca.verLibrosPrestados(clienteConsulta);
-                        if (librosPrestados.isEmpty()) {
-                            System.out.println("El cliente no tiene libros prestados.");
-                        } else {
-                            System.out.println("Libros prestados por el cliente:");
-                            for (NodoLibro libro : librosPrestados) {
-                                System.out.println(libro);
-                            }
-                        }
-                    } else {
-                        System.out.println("Cliente no encontrado.");
-                    }
-                    break;
+        // Añadir panel a la ventana
+        add(panel);
+    }
 
-                case 6:
-                    System.out.println("Saliendo...");
-                    scanner.close();
-                    return;
+    private void ingresarLibro() {
+        JTextField isbnField = new JTextField();
+        JTextField tituloField = new JTextField();
+        JTextField autorField = new JTextField();
+        Object[] message = {
+                "ISBN:", isbnField,
+                "Título:", tituloField,
+                "Autor:", autorField
+        };
 
-                default:
-                    System.out.println("Opción no válida. Intenta de nuevo.");
+        int option = JOptionPane.showConfirmDialog(this, message, "Ingresar Libro", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            String isbn = isbnField.getText();
+            String titulo = tituloField.getText();
+            String autor = autorField.getText();
+            NodoLibro nuevoLibro = new NodoLibro(isbn, titulo, autor);
+            biblioteca.insertarLibro(nuevoLibro);
+            JOptionPane.showMessageDialog(this, "Libro ingresado correctamente.");
+        }
+    }
+
+    private void ingresarUsuario() {
+        JTextField idField = new JTextField();
+        JTextField nombreField = new JTextField();
+        Object[] message = {
+                "ID:", idField,
+                "Nombre:", nombreField
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Ingresar Usuario", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            String id = idField.getText();
+            String nombre = nombreField.getText();
+            NodoCliente nuevoCliente = new NodoCliente(id, nombre);
+            biblioteca.crearCliente(nuevoCliente);
+            JOptionPane.showMessageDialog(this, "Usuario ingresado correctamente.");
+        }
+    }
+
+    private void hacerPrestamo() {
+        JTextField idField = new JTextField();
+        JTextField isbnField = new JTextField();
+        Object[] message = {
+                "ID Usuario:", idField,
+                "ISBN Libro:", isbnField
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Hacer Préstamo", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            String idCliente = idField.getText();
+            String isbn = isbnField.getText();
+            NodoCliente cliente = biblioteca.buscarClientePorId(idCliente);
+            NodoLibro libro = biblioteca.buscarLibroPorIsbn(isbn);
+            if (cliente != null && libro != null) {
+                biblioteca.prestarLibro(cliente, libro);
+                JOptionPane.showMessageDialog(this, "Préstamo realizado correctamente.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Cliente o libro no encontrado.");
             }
         }
+    }
+
+    private void hacerDevolucion() {
+        JTextField idField = new JTextField();
+        JTextField isbnField = new JTextField();
+        Object[] message = {
+                "ID Usuario:", idField,
+                "ISBN Libro:", isbnField
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Hacer Devolución", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            String idCliente = idField.getText();
+            String isbn = isbnField.getText();
+            NodoCliente cliente = biblioteca.buscarClientePorId(idCliente);
+            NodoLibro libro = biblioteca.buscarLibroPorIsbn(isbn);
+            if (cliente != null && libro != null) {
+                biblioteca.devolverLibro(cliente, libro);
+                JOptionPane.showMessageDialog(this, "Devolución realizada correctamente.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Cliente o libro no encontrado.");
+            }
+        }
+    }
+
+    private void verLibrosPrestados() {
+        String idCliente = JOptionPane.showInputDialog(this, "Ingrese ID del usuario:");
+        NodoCliente cliente = biblioteca.buscarClientePorId(idCliente);
+        if (cliente != null) {
+            Set<NodoLibro> librosPrestados = biblioteca.verLibrosPrestados(cliente);
+            if (librosPrestados.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El cliente no tiene libros prestados.");
+            } else {
+                StringBuilder mensaje = new StringBuilder("Libros prestados por el cliente:\n");
+                for (NodoLibro libro : librosPrestados) {
+                    mensaje.append(libro).append("\n");
+                }
+                JOptionPane.showMessageDialog(this, mensaje.toString());
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Cliente no encontrado.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Main main = new Main();
+            main.setVisible(true);
+        });
     }
 }

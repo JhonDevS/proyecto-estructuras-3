@@ -30,11 +30,6 @@ public class NodoLibro {
     }
 
     @Override
-    public int hashCode() {
-        return isbn.hashCode();
-    }
-
-    @Override
     public String toString() {
         return "ISBN: " + isbn + ", Título: " + titulo + ", Autor: " + autor;
     }
